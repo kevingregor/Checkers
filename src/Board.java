@@ -15,40 +15,78 @@ public class Board {
 		}
 	}
 	
-	public void getJumps(Checker piece, Coordinates loc) {
-		if (piece.player.getCode() == CheckersApp.PLAYER1) {
-			if (piece.isKing()) {
-				
-			}
-			else {
-				if (loc.row > 1) {
-					if (loc.col > 1) {
-						// Look for left jumps
-						if (grid[loc.row - 1][loc.col - 1] != null && grid[loc.row - 2][loc.col - 2] == null
-								&& grid[loc.row - 1][loc.col - 1].player.getCode() == CheckersApp.PLAYER2) {
-							Coordinates jump = new Coordinates(loc.row - 2, loc.col - 2);
-							piece.possibleMoves.add(jump);
-							getJumps(piece, jump);
-						}
+	public void getJumps(Checker piece, Coordinates loc, int[][] jumpGrid) {
+		char code = piece.player.getCode();
+		if ((piece.isKing() && piece.player.getCode() == CheckersApp.PLAYER1)
+				|| code == CheckersApp.PLAYER2) {
+			if (loc.row < 6) {
+				if (loc.col > 1) {
+					// Look for left jumps
+					if (grid[loc.row + 1][loc.col - 1] != null && grid[loc.row + 2][loc.col - 2] == null
+							&& grid[loc.row + 1][loc.col - 1].player.getCode() != code
+							&& jumpGrid[loc.row + 1][loc.col - 1] != 1) {
+						Coordinates jump = new Coordinates(loc.row + 2, loc.col - 2);
+						piece.possibleMoves.add(jump);
+						
+						int[][] newGrid = jumpGrid.clone();
+						newGrid[loc.row + 1][loc.col - 1] = 1;
+						getJumps(piece, jump, newGrid);
 					}
-					if (loc.col < 6) {
-						// Look for right jumps
-						if (grid[loc.row - 1][loc.col + 1] != null && grid[loc.row - 2][loc.col + 2] == null
-								&& grid[loc.row - 1][loc.col + 1].player.getCode() == CheckersApp.PLAYER2) {
-							Coordinates jump = new Coordinates(loc.row - 2, loc.col + 2);
-							piece.possibleMoves.add(jump);
-							getJumps(piece, jump);
-						}
+				}
+				if (loc.col < 6) {
+//						// Look for right jumps
+					if (grid[loc.row + 1][loc.col + 1] != null && grid[loc.row + 2][loc.col + 2] == null
+							&& grid[loc.row + 1][loc.col + 1].player.getCode() != code
+							&& jumpGrid[loc.row + 1][loc.col + 1] != 1) {
+						Coordinates jump = new Coordinates(loc.row + 2, loc.col + 2);
+						piece.possibleMoves.add(jump);
+						
+						int[][] newGrid = jumpGrid.clone();
+						newGrid[loc.row + 1][loc.col + 1] = 1;
+						getJumps(piece, jump, newGrid);
+					}
+				}
+			}
+		}
+		
+		if (((piece.isKing() && piece.player.getCode() == CheckersApp.PLAYER2)
+				|| code == CheckersApp.PLAYER1)) {
+			if (loc.row > 1) {
+				if (loc.col > 1) {
+					// Look for left jumps
+					if (grid[loc.row - 1][loc.col - 1] != null && grid[loc.row - 2][loc.col - 2] == null
+							&& grid[loc.row - 1][loc.col - 1].player.getCode() != code
+							&& jumpGrid[loc.row - 1][loc.col - 1] != 1) {
+						Coordinates jump = new Coordinates(loc.row - 2, loc.col - 2);
+						piece.possibleMoves.add(jump);
+						
+						int[][] newGrid = jumpGrid.clone();
+						newGrid[loc.row - 1][loc.col - 1] = 1;
+						getJumps(piece, jump, newGrid);
+					}
+				}
+				if (loc.col < 6) {
+					// Look for right jumps
+					if (grid[loc.row - 1][loc.col + 1] != null && grid[loc.row - 2][loc.col + 2] == null
+							&& grid[loc.row - 1][loc.col + 1].player.getCode() != code
+							&& jumpGrid[loc.row - 1][loc.col + 1] != 1) {
+						Coordinates jump = new Coordinates(loc.row - 2, loc.col + 2);
+						piece.possibleMoves.add(jump);
+						
+						int[][] newGrid = jumpGrid.clone();
+						newGrid[loc.row - 1][loc.col + 1] = 1;
+						getJumps(piece, jump, newGrid);
 					}
 				}
 			}
 		}
 	}
 	
+	
 	public void getValidMoves(Checker piece) {
 		Coordinates loc = piece.loc;
-		if (piece.player.getCode() == CheckersApp.PLAYER1) {
-			getJumps(piece, loc);
+		if ((piece.isKing() && piece.player.getCode() == CheckersApp.PLAYER2)
+				|| piece.player.getCode() == CheckersApp.PLAYER1) {
 			if (loc.row > 0) {
 				if (loc.col > 0) {
 					// Check left move
@@ -63,27 +101,30 @@ public class Board {
 					}
 				}
 			}
+		}
 			
-			
-			if (piece.isKing()) {
-				// Add more
-				if (loc.row < 7) {
-					if (loc.col > 0) {
-						// Check left move
-						if (grid[loc.row + 1][loc.col - 1] == null) {
-							piece.possibleMoves.add(new Coordinates(loc.row + 1, loc.col - 1));
-						}
+		if ((piece.isKing() && piece.player.getCode() == CheckersApp.PLAYER1)
+				|| piece.player.getCode() == CheckersApp.PLAYER2) {
+			// Add more
+			if (loc.row < 7) {
+				if (loc.col > 0) {
+					// Check left move
+					if (grid[loc.row + 1][loc.col - 1] == null) {
+						piece.possibleMoves.add(new Coordinates(loc.row + 1, loc.col - 1));
 					}
-					if (loc.col < 7) {
-						// Check right move
-						if (grid[loc.row + 1][loc.col + 1] == null) {
-							piece.possibleMoves.add(new Coordinates(loc.row + 1, loc.col + 1));
-						}
+				}
+				if (loc.col < 7) {
+					// Check right move
+					if (grid[loc.row + 1][loc.col + 1] == null) {
+						piece.possibleMoves.add(new Coordinates(loc.row + 1, loc.col + 1));
 					}
 				}
 			}
 		}
+			
+		getJumps(piece, loc, new int[8][8]);
 		
+		// Print moves
 		System.out.println("Piece at: " + (char) ((char) 'A' + loc.row) + (loc.col + 1));
 		for (Coordinates move : piece.possibleMoves) {
 			char r = (char) ((char) 'A' + move.row);

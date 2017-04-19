@@ -15,19 +15,9 @@ public class CheckersApp {
 		player2 = new Player(false, PLAYER2, 1);
 		initBoard(board);
 		
-		
-		Checker toAdd = new Checker(player2);
-		board.addChecker(toAdd, 4, 3);
-		board.addChecker(toAdd, 2, 3);
-		
-		Checker toAdd2 = new Checker(player1);
-		toAdd2.setKing();
-		board.addChecker(toAdd2, 1, 4);
-		player1.checkers.add(toAdd2);
-		
 		board.printBoard();
 		
-		for (Checker checker : player1.checkers) {
+		for (Checker checker : player2.checkers) {
 			board.getValidMoves(checker);
 		}
 	}
@@ -39,9 +29,9 @@ public class CheckersApp {
 				board.addChecker(toAdd, 7-i, 2*j + (i % 2));
 				player1.checkers.add(toAdd);
 				
-//				Checker toAdd2 = new Checker(player2);
-//				board.addChecker(toAdd2, i, 2*j + ((7-i) % 2));
-//				player2.checkers.add(toAdd2);
+				Checker toAdd2 = new Checker(player2);
+				board.addChecker(toAdd2, i, 2*j + ((7-i) % 2));
+				player2.checkers.add(toAdd2);
 			}
 		}
 	}

@@ -5,7 +5,7 @@ public class Checker {
 	public Player player;
 	private boolean king = false;
 	public Coordinates loc = new Coordinates(0,0);
-	public ArrayList<Coordinates> possibleMoves = new ArrayList<Coordinates>(); 
+	public ArrayList<Coordinates> possibleMoves = new ArrayList<Coordinates>();
 
 	public Checker(Player player) {
 		// TODO Auto-generated constructor stub
