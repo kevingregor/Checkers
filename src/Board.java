@@ -1,3 +1,6 @@
+import sun.jvm.hotspot.code.ConstantOopReadValue;
+
+import java.util.ArrayList;
 
 public class Board {
 	private Checker[][] grid = new Checker[8][8];  // Top left is [0][0], TR is [0][7], BL is [7][0], BR is [7,7]
@@ -181,6 +184,15 @@ public class Board {
 				System.out.print("\n");
 			}
 		}
+	}
+
+
+	public void moveChecker(Coordinates from, Coordinates to){
+		Checker toMove = grid[from.row][from.col];
+		toMove.loc = to;
+		toMove.possibleMoves = new ArrayList<Coordinates>();
+		grid[from.row][from.col] = null;
+		grid[to.row][to.col] = toMove;
 	}
 
 }
