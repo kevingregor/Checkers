@@ -72,8 +72,26 @@ public class CheckersApp {
 				boolean found = false;    //variable representing if the coordinates input is found/valid
 
 				Integer[] infoInt = new Integer[2];
+				Integer rowNum = 0;
+				if (infoStringFrom[0].equals("a")){
+					rowNum = 0;
+				} else if (infoStringFrom[0].equals("b")){
+					rowNum = 1;
+				} else if (infoStringFrom[0].equals("c")){
+					rowNum = 2;
+				} else if (infoStringFrom[0].equals("d")){
+					rowNum = 3;
+				} else if (infoStringFrom[0].equals("e")){
+					rowNum = 4;
+				} else if (infoStringFrom[0].equals("f")){
+					rowNum = 5;
+				} else if (infoStringFrom[0].equals("g")){
+					rowNum = 6;
+				} else if (infoStringFrom[0].equals("h")){
+					rowNum = 7;
+				}
 
-				Coordinates coordFrom = new Coordinates(Integer.parseInt(infoStringFrom[0]), Integer.parseInt(infoStringFrom[1])); // create coordinate for with the input r,c
+				Coordinates coordFrom = new Coordinates(rowNum, Integer.parseInt(infoStringFrom[1]) - 1); // create coordinate for with the input r,c
 
 
 				if (currPlayer == player1) {
@@ -97,7 +115,28 @@ public class CheckersApp {
 						String lineTo = scanner.nextLine();
 						String[] infoStringTo = lineTo.split("\\s+");
 
-						Coordinates coordTo = new Coordinates(Integer.parseInt(infoStringTo[0]), Integer.parseInt(infoStringTo[1]));
+						Integer rowNumTo = 0;
+						if (infoStringTo[0].equals("a")){
+							rowNumTo = 0;
+						} else if (infoStringTo[0].equals("b")){
+							rowNumTo = 1;
+						} else if (infoStringTo[0].equals("c")){
+							rowNumTo = 2;
+						} else if (infoStringTo[0].equals("d")){
+							rowNumTo = 3;
+						} else if (infoStringTo[0].equals("e")){
+							rowNumTo = 4;
+						} else if (infoStringTo[0].equals("f")){
+							rowNumTo = 5;
+						} else if (infoStringTo[0].equals("g")){
+							rowNumTo = 6;
+						} else if (infoStringTo[0].equals("h")){
+							rowNumTo = 7;
+						}
+
+
+
+						Coordinates coordTo = new Coordinates(rowNumTo, Integer.parseInt(infoStringTo[1])-1);
 
 						boolean toFound = false;
 						for (Coordinates move : pieceToMove.possibleMoves) {
@@ -132,7 +171,26 @@ public class CheckersApp {
 						String lineTo = scanner.nextLine();
 						String[] infoStringTo = lineTo.split("\\s+");
 
-						Coordinates coordTo = new Coordinates(Integer.parseInt(infoStringTo[0]), Integer.parseInt(infoStringTo[1]));
+						Integer rowNumTo = 0;
+						if (infoStringTo[0].equals("a")){
+							rowNumTo = 0;
+						} else if (infoStringTo[0].equals("b")){
+							rowNumTo = 1;
+						} else if (infoStringTo[0].equals("c")){
+							rowNumTo = 2;
+						} else if (infoStringTo[0].equals("d")){
+							rowNumTo = 3;
+						} else if (infoStringTo[0].equals("e")){
+							rowNumTo = 4;
+						} else if (infoStringTo[0].equals("f")){
+							rowNumTo = 5;
+						} else if (infoStringTo[0].equals("g")){
+							rowNumTo = 6;
+						} else if (infoStringTo[0].equals("h")){
+							rowNumTo = 7;
+						}
+
+						Coordinates coordTo = new Coordinates(rowNumTo, Integer.parseInt(infoStringTo[1])-1);
 
 						boolean toFound = false;
 						for (Coordinates move : pieceToMove.possibleMoves) {
