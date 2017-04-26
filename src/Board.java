@@ -1,13 +1,23 @@
 import sun.jvm.hotspot.code.ConstantOopReadValue;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Board {
 	private Checker[][] grid = new Checker[8][8];  // Top left is [0][0], TR is [0][7], BL is [7][0], BR is [7,7]
-	
+	private boolean finished = false;
+	private Player winner = new Player();
 	
 	public Board() {
 		// TODO Auto-generated constructor stub
+	}
+	
+	public boolean isFinished() {
+		return finished;
+	}
+	
+	public Player getWinner() {
+		return winner;
 	}
 	
 	public void addChecker(Checker piece, int r, int c) {
@@ -30,6 +40,7 @@ public class Board {
 							&& jumpGrid[loc.row + 1][loc.col - 1] != 1) {
 						Coordinates jump = new Coordinates(loc.row + 2, loc.col - 2);
 						piece.possibleMoves.add(jump);
+						piece.predecessors.put(jump, loc);
 						
 						int[][] newGrid = jumpGrid.clone();
 						newGrid[loc.row + 1][loc.col - 1] = 1;
@@ -43,6 +54,7 @@ public class Board {
 							&& jumpGrid[loc.row + 1][loc.col + 1] != 1) {
 						Coordinates jump = new Coordinates(loc.row + 2, loc.col + 2);
 						piece.possibleMoves.add(jump);
+						piece.predecessors.put(jump, loc);
 						
 						int[][] newGrid = jumpGrid.clone();
 						newGrid[loc.row + 1][loc.col + 1] = 1;
@@ -62,6 +74,7 @@ public class Board {
 							&& jumpGrid[loc.row - 1][loc.col - 1] != 1) {
 						Coordinates jump = new Coordinates(loc.row - 2, loc.col - 2);
 						piece.possibleMoves.add(jump);
+						piece.predecessors.put(jump, loc);
 						
 						int[][] newGrid = jumpGrid.clone();
 						newGrid[loc.row - 1][loc.col - 1] = 1;
@@ -75,6 +88,7 @@ public class Board {
 							&& jumpGrid[loc.row - 1][loc.col + 1] != 1) {
 						Coordinates jump = new Coordinates(loc.row - 2, loc.col + 2);
 						piece.possibleMoves.add(jump);
+						piece.predecessors.put(jump, loc);
 						
 						int[][] newGrid = jumpGrid.clone();
 						newGrid[loc.row - 1][loc.col + 1] = 1;
@@ -186,11 +200,37 @@ public class Board {
 		}
 	}
 
+	public void removeCheckers(Checker toMove, Coordinates from, Coordinates to) {
+		Player opponent = new Player();
+		Coordinates pred = toMove.predecessors.containsKey(to) ? toMove.predecessors.get(to) : null;
+		while (pred != null) {
+			Checker toRemove = grid[(pred.row + to.row)/2][(pred.col + to.col)/2];
+			opponent = toRemove.player;
+			opponent.checkers.remove(toRemove);
+			grid[(pred.row + to.row)/2][(pred.col + to.col)/2] = null;
+			
+			if (pred.equals(from)) break;
+			
+			to = pred;
+			pred = toMove.predecessors.get(pred);
+		}
+		
+		if (opponent.checkers.size() == 0 && pred != null) {
+			// End Game
+			finished = true;
+			winner = toMove.player;
+		}
+	}
 
 	public void moveChecker(Coordinates from, Coordinates to){
 		Checker toMove = grid[from.row][from.col];
 		toMove.loc = to;
+		
+		// Find path
+		removeCheckers(toMove, from, to);
+		
 		toMove.possibleMoves = new ArrayList<Coordinates>();
+		toMove.predecessors = new HashMap<Coordinates, Coordinates>();
 		grid[from.row][from.col] = null;
 		grid[to.row][to.col] = toMove;
 	}

@@ -15,6 +15,10 @@ public class Player {
 		this.kingWeight = kingWeight;
 	}
 	
+	public Player() {
+		// TODO Auto-generated constructor stub
+	}
+
 	public boolean isAI() {
 		return this.ai;
 	}

@@ -22,13 +22,6 @@ public class CheckersApp {
 		
 		board.printBoard();
 
-//		for (Checker checker : player2.checkers) {
-//			board.getValidMoves(checker);
-//		}
-
-		//board.moveChecker(new Coordinates(5,0), new Coordinates(4, 1));
-		//board.printBoard();
-
 		playGame();
 
 
@@ -53,7 +46,7 @@ public class CheckersApp {
 
 		Scanner scanner = new Scanner(System.in);
 
-		while (true) {
+		while (!board.isFinished()) {
 			if (currPlayer == player1) {
 				System.out.println("Player1's Turn\n");
 			} else {
@@ -65,31 +58,21 @@ public class CheckersApp {
 
 			String lineFrom = scanner.nextLine();
 			String[] infoStringFrom = lineFrom.split("\\s+");
+			if (infoStringFrom[0].length() == 2) {
+				String str = infoStringFrom[0];
+				infoStringFrom = new String[2];
+				infoStringFrom[0] = str.substring(0, 1);
+				infoStringFrom[1] = str.substring(1);
+			}
 
 			if (infoStringFrom.length == 2) {
-
 
 				boolean found = false;    //variable representing if the coordinates input is found/valid
 
 				Integer[] infoInt = new Integer[2];
-				Integer rowNum = 0;
-				if (infoStringFrom[0].equals("a")){
-					rowNum = 0;
-				} else if (infoStringFrom[0].equals("b")){
-					rowNum = 1;
-				} else if (infoStringFrom[0].equals("c")){
-					rowNum = 2;
-				} else if (infoStringFrom[0].equals("d")){
-					rowNum = 3;
-				} else if (infoStringFrom[0].equals("e")){
-					rowNum = 4;
-				} else if (infoStringFrom[0].equals("f")){
-					rowNum = 5;
-				} else if (infoStringFrom[0].equals("g")){
-					rowNum = 6;
-				} else if (infoStringFrom[0].equals("h")){
-					rowNum = 7;
-				}
+				
+				char rowChar = infoStringFrom[0].charAt(0);
+				int rowNum = Character.toUpperCase(rowChar) - 'A';
 
 				Coordinates coordFrom = new Coordinates(rowNum, Integer.parseInt(infoStringFrom[1]) - 1); // create coordinate for with the input r,c
 
@@ -104,7 +87,7 @@ public class CheckersApp {
 						}
 						i += 1;
 					}
-					System.out.println(found);
+//					System.out.println(found);
 					if (found) {
 						System.out.println("Valid moves: ");
 						Checker pieceToMove = player1.checkers.get(indexOfChecker);
@@ -114,27 +97,15 @@ public class CheckersApp {
 
 						String lineTo = scanner.nextLine();
 						String[] infoStringTo = lineTo.split("\\s+");
-
-						Integer rowNumTo = 0;
-						if (infoStringTo[0].equals("a")){
-							rowNumTo = 0;
-						} else if (infoStringTo[0].equals("b")){
-							rowNumTo = 1;
-						} else if (infoStringTo[0].equals("c")){
-							rowNumTo = 2;
-						} else if (infoStringTo[0].equals("d")){
-							rowNumTo = 3;
-						} else if (infoStringTo[0].equals("e")){
-							rowNumTo = 4;
-						} else if (infoStringTo[0].equals("f")){
-							rowNumTo = 5;
-						} else if (infoStringTo[0].equals("g")){
-							rowNumTo = 6;
-						} else if (infoStringTo[0].equals("h")){
-							rowNumTo = 7;
+						if (infoStringTo[0].length() == 2) {
+							String str = infoStringTo[0];
+							infoStringTo = new String[2];
+							infoStringTo[0] = str.substring(0, 1);
+							infoStringTo[1] = str.substring(1);
 						}
 
-
+						char rowCharTo = infoStringTo[0].charAt(0);
+						int rowNumTo = Character.toUpperCase(rowCharTo) - 'A';
 
 						Coordinates coordTo = new Coordinates(rowNumTo, Integer.parseInt(infoStringTo[1])-1);
 
@@ -170,25 +141,15 @@ public class CheckersApp {
 
 						String lineTo = scanner.nextLine();
 						String[] infoStringTo = lineTo.split("\\s+");
-
-						Integer rowNumTo = 0;
-						if (infoStringTo[0].equals("a")){
-							rowNumTo = 0;
-						} else if (infoStringTo[0].equals("b")){
-							rowNumTo = 1;
-						} else if (infoStringTo[0].equals("c")){
-							rowNumTo = 2;
-						} else if (infoStringTo[0].equals("d")){
-							rowNumTo = 3;
-						} else if (infoStringTo[0].equals("e")){
-							rowNumTo = 4;
-						} else if (infoStringTo[0].equals("f")){
-							rowNumTo = 5;
-						} else if (infoStringTo[0].equals("g")){
-							rowNumTo = 6;
-						} else if (infoStringTo[0].equals("h")){
-							rowNumTo = 7;
+						if (infoStringTo[0].length() == 2) {
+							String str = infoStringTo[0];
+							infoStringTo = new String[2];
+							infoStringTo[0] = str.substring(0, 1);
+							infoStringTo[1] = str.substring(1);
 						}
+
+						char rowCharTo = infoStringTo[0].charAt(0);
+						int rowNumTo = Character.toUpperCase(rowCharTo) - 'A';
 
 						Coordinates coordTo = new Coordinates(rowNumTo, Integer.parseInt(infoStringTo[1])-1);
 
@@ -211,6 +172,14 @@ public class CheckersApp {
 				return;
 			}
 
+		}
+		
+		Player winner = board.getWinner();
+		if (winner.equals(player1)) {
+			System.out.println("Player 1 wins");
+		}
+		else {
+			System.out.println("Player 2 wins");
 		}
 	}
 
