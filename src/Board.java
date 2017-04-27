@@ -233,6 +233,9 @@ public class Board {
 		toMove.predecessors = new HashMap<Coordinates, Coordinates>();
 		grid[from.row][from.col] = null;
 		grid[to.row][to.col] = toMove;
+		if (to.row == 0 || to.row == 7){
+			toMove.setKing();
+		}
 	}
 
 }
