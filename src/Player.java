@@ -3,7 +3,7 @@ import java.util.ArrayList;
 public class Player {
 	
 	private boolean ai = false;
-	private char playerCode; 
+	private char playerCode;
 	private double kingWeight;
 	public ArrayList<Checker> checkers = new ArrayList<Checker>();
 	

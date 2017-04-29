@@ -23,4 +23,8 @@ public class Checker {
 		return this.king;
 	}
 
+	public float getCheckerWeight() {
+		return 1;
+	}
+
 }

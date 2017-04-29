@@ -47,6 +47,9 @@ public class CheckersApp {
 		Scanner scanner = new Scanner(System.in);
 
 		while (!board.isFinished()) {
+
+			System.out.println("Heuristic Val of Board = " + board.getHeuristicVal());
+
 			if (currPlayer == player1) {
 				System.out.println("Player1's Turn\n");
 			} else {

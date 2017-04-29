@@ -238,4 +238,31 @@ public class Board {
 		}
 	}
 
+
+	public double getHeuristicVal(){
+		//returns positive vals if p1 is doing doing better, negative if p2 is
+
+		float p1Weight = 0;
+		float p2Weight = 0;
+
+
+		for (int i=0; i < 8; i++){
+			for (int j=0; j < 8; j++){
+				if (grid[j][i] != null){
+					Checker tempChecker = grid[j][i];
+					if (tempChecker.player.getCode() == 'X') {
+						p1Weight += tempChecker.getCheckerWeight();
+					}
+					else if (tempChecker.player.getCode() == 'O') {
+						p2Weight += tempChecker.getCheckerWeight();
+					}
+				}
+			}
+		}
+
+		return (p1Weight - p2Weight);
+
+	}
+
+
 }
