@@ -15,6 +15,12 @@ public class Checker {
 		this.player = player;
 	}
 	
+	public Checker(Checker piece) {
+		this.player = piece.player;
+		this.king = piece.king;
+		this.loc = piece.loc;
+	}
+	
 	public void setKing() {
 		this.king = true;
 	}
@@ -22,9 +28,4 @@ public class Checker {
 	public boolean isKing() {
 		return this.king;
 	}
-
-	public float getCheckerWeight() {
-		return 1;
-	}
-
 }

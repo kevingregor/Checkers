@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Board {
-	private Checker[][] grid = new Checker[8][8];  // Top left is [0][0], TR is [0][7], BL is [7][0], BR is [7,7]
+	public Checker[][] grid = new Checker[8][8];  // Top left is [0][0], TR is [0][7], BL is [7][0], BR is [7,7]
 	private boolean finished = false;
 	private Player winner = new Player();
 	
@@ -142,11 +142,11 @@ public class Board {
 		getJumps(piece, loc, new int[8][8]);
 		
 		// Print moves
-		System.out.println("Piece at: " + (char) ((char) 'A' + loc.row) + (loc.col + 1));
-		for (Coordinates move : piece.possibleMoves) {
-			char r = (char) ((char) 'A' + move.row);
-			System.out.println("(" + r + ", " + (move.col + 1) + ")");
-		}
+//		System.out.println("Piece at: " + (char) ((char) 'A' + loc.row) + (loc.col + 1));
+//		for (Coordinates move : piece.possibleMoves) {
+//			char r = (char) ((char) 'A' + move.row);
+//			System.out.println("(" + r + ", " + (move.col + 1) + ")");
+//		}
 	}
 	
 	public void printBoard() {
@@ -239,29 +239,182 @@ public class Board {
 	}
 
 
-	public double getHeuristicVal(){
-		//returns positive vals if p1 is doing doing better, negative if p2 is
+	public int[] getHeuristicNums(Checker[][] grd){
 
-		float p1Weight = 0;
-		float p2Weight = 0;
+		// Index 0: Number of pawns
+		// Index 1: Number of kings
+		// Index 2: Number in back row
+		// Index 3: Number in middle box
+		// Index 4: Number in middle 2 rows, not box
+		// Index 5: Number that can be taken this turn
+		// Index 6: Number that are protected
+		int[] p1Nums = new int[7];
+		int[] p2Nums = new int[7];
+		
 
 
-		for (int i=0; i < 8; i++){
-			for (int j=0; j < 8; j++){
-				if (grid[j][i] != null){
-					Checker tempChecker = grid[j][i];
-					if (tempChecker.player.getCode() == 'X') {
-						p1Weight += tempChecker.getCheckerWeight();
+		for (Checker[] chkrs : grd) {
+			for (Checker chkr : chkrs) {
+				if (chkr != null) {
+					if (chkr.player.getCode() == CheckersApp.PLAYER1) {
+						// Check for pawns
+						if (!chkr.isKing()) {
+							p1Nums[0]++;
+						}
+						
+						// Check for king
+						else {
+							p1Nums[1]++;
+						}
+						
+						
+						int r = chkr.loc.row;
+						int c = chkr.loc.col;
+						// Check for back row
+						if (r == 7) {
+							p1Nums[2]++;
+							p1Nums[6]++;
+						}
+						else {
+							// Check for middle rows
+							if (r == 3 || r == 4) {
+								// Mid box
+								if (c >= 2 && c <= 5) {
+									p1Nums[3]++;
+								}
+								// Non-box
+								else {
+									p1Nums[4]++;
+								}
+							}
+							
+							// Check if can be taken this turn
+							if (r > 0) {
+								if (c > 0 && c < 7) {
+									if (grd[r - 1][c - 1] != null && 
+											grd[r-1][c-1].player.getCode() == CheckersApp.PLAYER2) {
+										p1Nums[5]++;
+									}
+									if (grd[r - 1][c + 1] != null && 
+											grd[r-1][c+1].player.getCode() == CheckersApp.PLAYER2) {
+										p1Nums[5]++;
+									}
+								}
+							}
+							
+							// Check for protected checkers
+							if (r < 7) {
+								if (c == 0 || c == 7) {
+									p1Nums[6]++;
+								}
+								else {
+									if ((grd[r + 1][c - 1] != null &&
+											(grd[r+1][c-1].player.getCode() == CheckersApp.PLAYER1 ||
+											 !grd[r+1][c-1].isKing())) &&
+										(grd[r + 1][c + 1] != null &&
+												(grd[r+1][c+1].player.getCode() == CheckersApp.PLAYER1 ||
+												 !grd[r+1][c+1].isKing()))) {
+										p1Nums[6]++;
+									}
+								}
+							}
+						}
 					}
-					else if (tempChecker.player.getCode() == 'O') {
-						p2Weight += tempChecker.getCheckerWeight();
+					if (chkr.player.getCode() == CheckersApp.PLAYER2) {
+						// Check for pawns
+						if (!chkr.isKing()) {
+							p2Nums[0]++;
+						}
+						
+						// Check for king
+						else {
+							p2Nums[1]++;
+						}
+						
+						
+						int r = chkr.loc.row;
+						int c = chkr.loc.col;
+						// Check for back row
+						if (r == 0) {
+							p2Nums[2]++;
+							p2Nums[6]++;
+						}
+						else {
+							// Check for middle rows
+							if (r == 3 || r == 4) {
+								// Mid box
+								if (c >= 2 && c <= 5) {
+									p2Nums[3]++;
+								}
+								// Non-box
+								else {
+									p2Nums[4]++;
+								}
+							}
+							
+							// Check if can be taken this turn
+							if (r < 7) {
+								if (c > 0 && c < 7) {
+									if (grd[r + 1][c - 1] != null && 
+											grd[r+1][c-1].player.getCode() == CheckersApp.PLAYER1) {
+										p2Nums[5]++;
+									}
+									if (grd[r + 1][c + 1] != null && 
+											grd[r+1][c+1].player.getCode() == CheckersApp.PLAYER1) {
+										p2Nums[5]++;
+									}
+								}
+							}
+							
+							// Check for protected checkers
+							if (r > 0) {
+								if (c == 0 || c == 7) {
+									p2Nums[6]++;
+								}
+								else {
+									if ((grd[r - 1][c - 1] != null &&
+											(grd[r-1][c-1].player.getCode() == CheckersApp.PLAYER2 ||
+											 !grd[r-1][c-1].isKing())) &&
+										(grd[r - 1][c + 1] != null &&
+												(grd[r-1][c+1].player.getCode() == CheckersApp.PLAYER2 ||
+												 !grd[r-1][c+1].isKing()))) {
+										p2Nums[6]++;
+									}
+								}
+							}
+						}
 					}
 				}
 			}
 		}
+		
+		System.out.println("Number of pawns:" + p1Nums[0]);
+		System.out.println("Number of kings:" + p1Nums[1]);
+		System.out.println("Number in back row:" + p1Nums[2]);
+		System.out.println("Number in mid box:" + p1Nums[3]);
+		System.out.println("Number in mid row non-box:" + p1Nums[4]);
+		System.out.println("Number can be taken immediately:" + p1Nums[5]);
+		System.out.println("Number of protected:" + p1Nums[6]);
+		
+		for (int i = 0; i < p1Nums.length; i++) {
+			p1Nums[i] = p1Nums[i] - p2Nums[i];
+		}
+		return p1Nums;
 
-		return (p1Weight - p2Weight);
-
+	}
+	
+	
+	public Checker[][] copyGrid() {
+		Checker[][] temp = new Checker[8][8];
+		for (int r = 0; r < 8; r++) {
+			for (int c = 0; c < 8; c++) {
+			    Checker piece = grid[r][c];
+			    if (piece != null) {
+			        temp[r][c] = new Checker(piece);
+			    }
+			}
+		}
+		return temp;
 	}
 
 

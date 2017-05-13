@@ -4,15 +4,15 @@ public class Player {
 	
 	private boolean ai = false;
 	private char playerCode;
-	private double kingWeight;
+	private double[] weights = new double[7];
 	public ArrayList<Checker> checkers = new ArrayList<Checker>();
 	
 
-	public Player(boolean isAI, char playerCode, double kingWeight) {
+	public Player(boolean isAI, char playerCode, double[] weights) {
 		// TODO Auto-generated constructor stub
 		this.ai = isAI;
 		this.playerCode = playerCode;
-		this.kingWeight = kingWeight;
+		this.weights = weights;
 	}
 	
 	public Player() {
@@ -25,6 +25,16 @@ public class Player {
 	
 	public char getCode() {
 		return this.playerCode;
+	}
+	
+	public double calcHeuristic(Board board) {
+		Checker[][] oldGrid = board.copyGrid();
+		int[] heuristicNums = board.getHeuristicNums(board.grid);
+		double sum = 0.0;
+		for (int i = 0; i < 7; i++) {
+			sum += heuristicNums[i]*this.weights[i];
+		}
+		return sum;
 	}
 
 }

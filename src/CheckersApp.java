@@ -15,8 +15,12 @@ public class CheckersApp {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		board = new Board();
-		player1 = new Player(false, PLAYER1, 1);
-		player2 = new Player(false, PLAYER2, 1);
+		
+		// Weights: pawns, kings, back row, mid box, mid rows, vulnerable, protected
+		double[] player1Weights = {1.0, 1, 1, 1, 1, -1, 1};
+		double[] player2Weights = {1.0, 1, 1, 1, 1, -1, 1};
+		player1 = new Player(false, PLAYER1, player1Weights);
+		player2 = new Player(false, PLAYER2, player2Weights);
 		currPlayer = player1;
 		initBoard(board);
 		
@@ -48,7 +52,9 @@ public class CheckersApp {
 
 		while (!board.isFinished()) {
 
-			System.out.println("Heuristic Val of Board = " + board.getHeuristicVal());
+//			System.out.println("Heuristic Val of Board = " + board.getHeuristicVal());
+			double heur = currPlayer.calcHeuristic(board);
+			System.out.println("Heuristc value: " + heur);
 
 			if (currPlayer == player1) {
 				System.out.println("Player1's Turn\n");
@@ -95,6 +101,15 @@ public class CheckersApp {
 						System.out.println("Valid moves: ");
 						Checker pieceToMove = player1.checkers.get(indexOfChecker);
 						board.getValidMoves(pieceToMove);
+						
+						Coordinates loc = pieceToMove.loc;
+						System.out.println("\nHeuristic values: ");
+						System.out.println("Piece at: " + (char) ((char) 'A' + loc.row) + (loc.col + 1));
+						for (Coordinates moves : pieceToMove.possibleMoves) {
+							double heuristic = 0;
+							char r = (char) ((char) 'A' + moves.row);
+							System.out.println("(" + r + ", " + (moves.col + 1) + "): " + heuristic);
+						}
 
 						System.out.println("(r, c) to move to: ");
 
@@ -139,6 +154,15 @@ public class CheckersApp {
 						System.out.println("Valid moves: ");
 						Checker pieceToMove = player2.checkers.get(indexOfChecker);
 						board.getValidMoves(pieceToMove);
+						
+						Coordinates loc = pieceToMove.loc;
+						System.out.println("\n Heuristic values: ");
+						System.out.println("Piece at: " + (char) ((char) 'A' + loc.row) + (loc.col + 1));
+						for (Coordinates moves : pieceToMove.possibleMoves) {
+							double heuristic = 0;
+							char r = (char) ((char) 'A' + moves.row);
+							System.out.println("(" + r + ", " + (moves.col + 1) + "): " + heuristic);
+						}
 
 						System.out.println("(r, c) to move to: ");
 
