@@ -200,13 +200,15 @@ public class Board {
 		}
 	}
 
-	public void removeCheckers(Checker toMove, Coordinates from, Coordinates to) {
+	public void removeCheckers(Checker toMove, Coordinates from, Coordinates to, boolean lookAhead) {
 		Player opponent = new Player();
 		Coordinates pred = toMove.predecessors.containsKey(to) ? toMove.predecessors.get(to) : null;
 		while (pred != null) {
 			Checker toRemove = grid[(pred.row + to.row)/2][(pred.col + to.col)/2];
 			opponent = toRemove.player;
-			opponent.checkers.remove(toRemove);
+			if (!lookAhead) {
+				opponent.checkers.remove(toRemove);
+			}
 			grid[(pred.row + to.row)/2][(pred.col + to.col)/2] = null;
 			
 			if (pred.equals(from)) break;
@@ -215,19 +217,20 @@ public class Board {
 			pred = toMove.predecessors.get(pred);
 		}
 		
-		if (opponent.checkers.size() == 0 && pred != null) {
+		if (!lookAhead && opponent.checkers.size() == 0 && pred != null) {
 			// End Game
 			finished = true;
 			winner = toMove.player;
 		}
 	}
+	
 
-	public void moveChecker(Coordinates from, Coordinates to){
+	public void moveChecker(Coordinates from, Coordinates to, boolean lookAhead){
 		Checker toMove = grid[from.row][from.col];
 		toMove.loc = to;
 		
 		// Find path
-		removeCheckers(toMove, from, to);
+		removeCheckers(toMove, from, to, lookAhead);
 		
 		toMove.possibleMoves = new ArrayList<Coordinates>();
 		toMove.predecessors = new HashMap<Coordinates, Coordinates>();

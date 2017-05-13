@@ -131,7 +131,7 @@ public class CheckersApp {
 						for (Coordinates move : pieceToMove.possibleMoves) {
 							if (move.row == coordTo.row && move.col == coordTo.col) {
 								toFound = true;
-								board.moveChecker(coordFrom, coordTo);
+								board.moveChecker(coordFrom, coordTo, false);
 								board.printBoard();
 							}
 						}
@@ -184,7 +184,7 @@ public class CheckersApp {
 						for (Coordinates move : pieceToMove.possibleMoves) {
 							if (move.row == coordTo.row && move.col == coordTo.col) {
 								toFound = true;
-								board.moveChecker(coordFrom, coordTo);
+								board.moveChecker(coordFrom, coordTo, false);
 								board.printBoard();
 							}
 						}
