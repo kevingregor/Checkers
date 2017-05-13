@@ -2,6 +2,7 @@ import sun.jvm.hotspot.code.ConstantOopReadValue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Board {
 	public Checker[][] grid = new Checker[8][8];  // Top left is [0][0], TR is [0][7], BL is [7][0], BR is [7,7]
@@ -101,6 +102,8 @@ public class Board {
 	
 	
 	public void getValidMoves(Checker piece) {
+		piece.possibleMoves = new ArrayList<Coordinates>();
+		piece.predecessors = new HashMap<Coordinates, Coordinates>();
 		Coordinates loc = piece.loc;
 		if ((piece.isKing() && piece.player.getCode() == CheckersApp.PLAYER2)
 				|| piece.player.getCode() == CheckersApp.PLAYER1) {
@@ -295,11 +298,13 @@ public class Board {
 							if (r > 0) {
 								if (c > 0 && c < 7) {
 									if (grd[r - 1][c - 1] != null && 
-											grd[r-1][c-1].player.getCode() == CheckersApp.PLAYER2) {
+											grd[r-1][c-1].player.getCode() == CheckersApp.PLAYER2
+											&& grd[r + 1][c + 1] == null) {
 										p1Nums[5]++;
 									}
 									if (grd[r - 1][c + 1] != null && 
-											grd[r-1][c+1].player.getCode() == CheckersApp.PLAYER2) {
+											grd[r-1][c+1].player.getCode() == CheckersApp.PLAYER2
+											&& grd[r + 1][c - 1] == null) {
 										p1Nums[5]++;
 									}
 								}
@@ -359,11 +364,13 @@ public class Board {
 							if (r < 7) {
 								if (c > 0 && c < 7) {
 									if (grd[r + 1][c - 1] != null && 
-											grd[r+1][c-1].player.getCode() == CheckersApp.PLAYER1) {
+											grd[r+1][c-1].player.getCode() == CheckersApp.PLAYER1
+											&& grd[r - 1][c + 1] == null) {
 										p2Nums[5]++;
 									}
 									if (grd[r + 1][c + 1] != null && 
-											grd[r+1][c+1].player.getCode() == CheckersApp.PLAYER1) {
+											grd[r+1][c+1].player.getCode() == CheckersApp.PLAYER1
+											&& grd[r - 1][c - 1] == null) {
 										p2Nums[5]++;
 									}
 								}
@@ -391,15 +398,16 @@ public class Board {
 			}
 		}
 		
-		System.out.println("Number of pawns:" + p1Nums[0]);
-		System.out.println("Number of kings:" + p1Nums[1]);
-		System.out.println("Number in back row:" + p1Nums[2]);
-		System.out.println("Number in mid box:" + p1Nums[3]);
-		System.out.println("Number in mid row non-box:" + p1Nums[4]);
-		System.out.println("Number can be taken immediately:" + p1Nums[5]);
-		System.out.println("Number of protected:" + p1Nums[6]);
+//		System.out.println("Number of pawns:" + p2Nums[0]);
+//		System.out.println("Number of kings:" + p2Nums[1]);
+//		System.out.println("Number in back row:" + p2Nums[2]);
+//		System.out.println("Number in mid box:" + p2Nums[3]);
+//		System.out.println("Number in mid row non-box:" + p2Nums[4]);
+//		System.out.println("Number can be taken immediately:" + p2Nums[5]);
+//		System.out.println("Number of protected:" + p2Nums[6]);
 		
 		for (int i = 0; i < p1Nums.length; i++) {
+//			System.out.println(p1Nums[i] + " " + p2Nums[i] + "\n");
 			p1Nums[i] = p1Nums[i] - p2Nums[i];
 		}
 		return p1Nums;
@@ -414,6 +422,9 @@ public class Board {
 			    Checker piece = grid[r][c];
 			    if (piece != null) {
 			        temp[r][c] = new Checker(piece);
+			        if (piece.player.checkers.contains(piece)) {
+			        	piece.player.checkers.set(piece.player.checkers.indexOf(piece), temp[r][c]);
+			        }
 			    }
 			}
 		}

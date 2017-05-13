@@ -1,5 +1,7 @@
 import com.sun.tools.javac.comp.Check;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 public class CheckersApp {
@@ -17,9 +19,10 @@ public class CheckersApp {
 		board = new Board();
 		
 		// Weights: pawns, kings, back row, mid box, mid rows, vulnerable, protected
-		double[] player1Weights = {1.0, 1, 1, 1, 1, -1, 1};
-		double[] player2Weights = {1.0, 1, 1, 1, 1, -1, 1};
-		player1 = new Player(false, PLAYER1, player1Weights);
+		double[] player1Weights = {4, 8, 0.5, 1.75, 1, -2.75, 0.75};
+//		double[] player2Weights = {4, 8, 0.5, 2.75, 1, -1.75, 1.25};
+		double[] player2Weights = player1Weights;
+		player1 = new Player(true, PLAYER1, player1Weights);
 		player2 = new Player(false, PLAYER2, player2Weights);
 		currPlayer = player1;
 		initBoard(board);
@@ -63,136 +66,132 @@ public class CheckersApp {
 			}
 
 
-			System.out.println("(r, c) to move from: ");
-
-			String lineFrom = scanner.nextLine();
-			String[] infoStringFrom = lineFrom.split("\\s+");
-			if (infoStringFrom[0].length() == 2) {
-				String str = infoStringFrom[0];
-				infoStringFrom = new String[2];
-				infoStringFrom[0] = str.substring(0, 1);
-				infoStringFrom[1] = str.substring(1);
+			
+			String[] infoStringFrom = null;
+			if (!currPlayer.isAI()) {
+				System.out.println("(r, c) to move from: ");
+				String lineFrom = scanner.nextLine();
+				infoStringFrom = lineFrom.split("\\s+");
+				if (infoStringFrom[0].length() == 2) {
+					String str = infoStringFrom[0];
+					infoStringFrom = new String[2];
+					infoStringFrom[0] = str.substring(0, 1);
+					infoStringFrom[1] = str.substring(1);
+				}
 			}
 
-			if (infoStringFrom.length == 2) {
-
-				boolean found = false;    //variable representing if the coordinates input is found/valid
-
-				Integer[] infoInt = new Integer[2];
+			if (currPlayer.isAI() || infoStringFrom.length == 2) {
 				
-				char rowChar = infoStringFrom[0].charAt(0);
-				int rowNum = Character.toUpperCase(rowChar) - 'A';
-
-				Coordinates coordFrom = new Coordinates(rowNum, Integer.parseInt(infoStringFrom[1]) - 1); // create coordinate for with the input r,c
-
-
-				if (currPlayer == player1) {
-					int indexOfChecker = 0;
-					int i = 0;
-					for (Checker checker : player1.checkers) {
-						if (checker.loc.row == coordFrom.row && checker.loc.col == coordFrom.col) {
-							found = true;
-							indexOfChecker = i;
-						}
-						i += 1;
-					}
-//					System.out.println(found);
-					if (found) {
-						System.out.println("Valid moves: ");
-						Checker pieceToMove = player1.checkers.get(indexOfChecker);
+				Coordinates coordTo = null;
+				Coordinates coordFrom = null;
+				
+				if (currPlayer.isAI()) {
+					Checker toMove = null;
+					double total = -Double.MAX_VALUE;
+					Checker[][] ogGrid = board.copyGrid();
+					for (Checker pieceToMove : currPlayer.checkers) {
 						board.getValidMoves(pieceToMove);
 						
+						Coordinates coordToSoFar = null;
+						Coordinates coordFromSoFar = null;
+						Checker[][] oldGrid = board.copyGrid();
+						Map<Coordinates, Double> hvals = new HashMap<Coordinates, Double>();
 						Coordinates loc = pieceToMove.loc;
 						System.out.println("\nHeuristic values: ");
 						System.out.println("Piece at: " + (char) ((char) 'A' + loc.row) + (loc.col + 1));
 						for (Coordinates moves : pieceToMove.possibleMoves) {
-							double heuristic = 0;
+							Checker[][] copyGrid = board.copyGrid();
+							board.moveChecker(loc, moves, true);
+							double heuristic = currPlayer.calcHeuristic(board);
+							hvals.put(moves, heuristic);
 							char r = (char) ((char) 'A' + moves.row);
 							System.out.println("(" + r + ", " + (moves.col + 1) + "): " + heuristic);
+							board.grid = copyGrid;
 						}
+						board.grid = oldGrid;
+						pieceToMove = board.grid[loc.row][loc.col];
 
-						System.out.println("(r, c) to move to: ");
-
-						String lineTo = scanner.nextLine();
-						String[] infoStringTo = lineTo.split("\\s+");
-						if (infoStringTo[0].length() == 2) {
-							String str = infoStringTo[0];
-							infoStringTo = new String[2];
-							infoStringTo[0] = str.substring(0, 1);
-							infoStringTo[1] = str.substring(1);
-						}
-
-						char rowCharTo = infoStringTo[0].charAt(0);
-						int rowNumTo = Character.toUpperCase(rowCharTo) - 'A';
-
-						Coordinates coordTo = new Coordinates(rowNumTo, Integer.parseInt(infoStringTo[1])-1);
-
-						boolean toFound = false;
-						for (Coordinates move : pieceToMove.possibleMoves) {
-							if (move.row == coordTo.row && move.col == coordTo.col) {
-								toFound = true;
-								board.moveChecker(coordFrom, coordTo, false);
-								board.printBoard();
+					
+						double maxVal = -Double.MAX_VALUE;
+						for (Coordinates c : hvals.keySet()) {
+							if (hvals.get(c) >= maxVal) {
+								maxVal = hvals.get(c);
+								coordToSoFar = c;
+								coordFromSoFar = pieceToMove.loc;
 							}
 						}
-
-
+						
+						
+						if (maxVal > total) {
+							toMove = pieceToMove;
+							total = maxVal;
+							coordTo = coordToSoFar;
+							coordFrom = coordFromSoFar;
+						}
 					}
-					currPlayer = player2;
-				} else if (currPlayer == player2) {
+					board.grid = ogGrid;
+					toMove = ogGrid[toMove.loc.row][toMove.loc.col];
+					
+					for (Coordinates move : toMove.possibleMoves) {
+						if (move.row == coordTo.row && move.col == coordTo.col) {
+							System.out.println(coordFrom.row + " " + coordFrom.col);
+							System.out.println(move.row + " " + move.col);
+							board.moveChecker(coordFrom, coordTo, false);
+							board.printBoard();
+//							break;
+						}
+					}
+				}
+				else {
+					char rowChar = infoStringFrom[0].charAt(0);
+					int rowNum = Character.toUpperCase(rowChar) - 'A';
+	
+					coordFrom = new Coordinates(rowNum, Integer.parseInt(infoStringFrom[1]) - 1); // create coordinate for with the input r,c
+	
 					int indexOfChecker = 0;
 					int i = 0;
-					for (Checker checker : player2.checkers) {
+					for (Checker checker : currPlayer.checkers) {
+						System.out.println(checker.loc.row + " " + checker.loc.col);
 						if (checker.loc.row == coordFrom.row && checker.loc.col == coordFrom.col) {
-							found = true;
 							indexOfChecker = i;
 						}
 						i += 1;
 					}
-					System.out.println(found);
-					if (found) {
-						System.out.println("Valid moves: ");
-						Checker pieceToMove = player2.checkers.get(indexOfChecker);
-						board.getValidMoves(pieceToMove);
-						
-						Coordinates loc = pieceToMove.loc;
-						System.out.println("\n Heuristic values: ");
-						System.out.println("Piece at: " + (char) ((char) 'A' + loc.row) + (loc.col + 1));
-						for (Coordinates moves : pieceToMove.possibleMoves) {
-							double heuristic = 0;
-							char r = (char) ((char) 'A' + moves.row);
-							System.out.println("(" + r + ", " + (moves.col + 1) + "): " + heuristic);
-						}
-
-						System.out.println("(r, c) to move to: ");
-
-						String lineTo = scanner.nextLine();
-						String[] infoStringTo = lineTo.split("\\s+");
-						if (infoStringTo[0].length() == 2) {
-							String str = infoStringTo[0];
-							infoStringTo = new String[2];
-							infoStringTo[0] = str.substring(0, 1);
-							infoStringTo[1] = str.substring(1);
-						}
-
-						char rowCharTo = infoStringTo[0].charAt(0);
-						int rowNumTo = Character.toUpperCase(rowCharTo) - 'A';
-
-						Coordinates coordTo = new Coordinates(rowNumTo, Integer.parseInt(infoStringTo[1])-1);
-
-						boolean toFound = false;
-						for (Coordinates move : pieceToMove.possibleMoves) {
-							if (move.row == coordTo.row && move.col == coordTo.col) {
-								toFound = true;
-								board.moveChecker(coordFrom, coordTo, false);
-								board.printBoard();
-							}
-						}
-
-
+					System.out.println("Valid moves: ");
+					Checker pieceToMove = currPlayer.checkers.get(indexOfChecker);
+					board.getValidMoves(pieceToMove);
+					System.out.println("Piece at: " + (char) ((char) 'A' + pieceToMove.loc.row) + (pieceToMove.loc.col + 1));
+					for (Coordinates move : pieceToMove.possibleMoves) {
+						char r = (char) ((char) 'A' + move.row);
+						System.out.println("(" + r + ", " + (move.col + 1) + ")");
 					}
-					currPlayer = player1;
+					
+					System.out.println("(r, c) to move to: ");
+	
+					String lineTo = scanner.nextLine();
+					String[] infoStringTo = lineTo.split("\\s+");
+					if (infoStringTo[0].length() == 2) {
+						String str = infoStringTo[0];
+						infoStringTo = new String[2];
+						infoStringTo[0] = str.substring(0, 1);
+						infoStringTo[1] = str.substring(1);
+					}
+	
+					char rowCharTo = infoStringTo[0].charAt(0);
+					int rowNumTo = Character.toUpperCase(rowCharTo) - 'A';
+					
+	
+					coordTo = new Coordinates(rowNumTo, Integer.parseInt(infoStringTo[1])-1);
+					
+					for (Coordinates move : pieceToMove.possibleMoves) {
+						if (move.row == coordTo.row && move.col == coordTo.col) {
+							board.moveChecker(coordFrom, coordTo, false);
+							board.printBoard();
+						}
+					}
 				}
+
+				currPlayer = currPlayer == player1 ? player2 : player1;
 			}
 			else{
 				System.out.println("Quit");

@@ -28,7 +28,6 @@ public class Player {
 	}
 	
 	public double calcHeuristic(Board board) {
-		Checker[][] oldGrid = board.copyGrid();
 		int[] heuristicNums = board.getHeuristicNums(board.grid);
 		double sum = 0.0;
 		for (int i = 0; i < 7; i++) {

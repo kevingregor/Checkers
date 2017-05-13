@@ -19,6 +19,24 @@ public class Checker {
 		this.player = piece.player;
 		this.king = piece.king;
 		this.loc = piece.loc;
+		
+		// Copy possible moves
+		ArrayList<Coordinates> possMoves = new ArrayList<Coordinates>();
+		for (Coordinates coord : piece.possibleMoves) {
+			Coordinates newCoord = new Coordinates(coord.row, coord.col);
+			possMoves.add(newCoord);
+		}
+		this.possibleMoves = possMoves;
+		
+		// Copy predecessors
+		Map<Coordinates, Coordinates> pred = new HashMap<Coordinates, Coordinates>();
+		for (Coordinates key : piece.predecessors.keySet()) {
+			Coordinates newFrom = new Coordinates(key.row, key.col);
+			Coordinates newTo = new Coordinates(piece.predecessors.get(key).row, piece.predecessors.get(key).col);
+			pred.put(newFrom, newTo);
+		}
+		this.predecessors = pred;
+		
 	}
 	
 	public void setKing() {
