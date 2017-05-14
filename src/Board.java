@@ -426,9 +426,17 @@ public class Board {
 			        	piece.player.checkers.set(piece.player.checkers.indexOf(piece), temp[r][c]);
 			        }
 			    }
+			    else {
+			    	temp[r][c] = null;
+			    }
 			}
 		}
 		return temp;
+	}
+	
+	public void manuallySetWinner(Player player) {
+		finished = true;
+		winner = player;
 	}
 
 
