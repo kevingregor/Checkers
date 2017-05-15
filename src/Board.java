@@ -8,6 +8,7 @@ public class Board {
 	public Checker[][] grid = new Checker[8][8];  // Top left is [0][0], TR is [0][7], BL is [7][0], BR is [7,7]
 	private boolean finished = false;
 	private Player winner = new Player();
+	private int turnsWithoutCapture = 0;
 	
 	public Board() {
 		// TODO Auto-generated constructor stub
@@ -208,9 +209,11 @@ public class Board {
 		Coordinates pred = toMove.predecessors.containsKey(to) ? toMove.predecessors.get(to) : null;
 		while (pred != null) {
 			Checker toRemove = grid[(pred.row + to.row)/2][(pred.col + to.col)/2];
+			if (toRemove == null) break;
 			opponent = toRemove.player;
 			if (!lookAhead) {
 				opponent.checkers.remove(toRemove);
+				turnsWithoutCapture = 0;
 			}
 			grid[(pred.row + to.row)/2][(pred.col + to.col)/2] = null;
 			
@@ -231,6 +234,23 @@ public class Board {
 	public void moveChecker(Coordinates from, Coordinates to, boolean lookAhead){
 		Checker toMove = grid[from.row][from.col];
 		toMove.loc = to;
+		
+		if (!lookAhead) {
+			turnsWithoutCapture++;
+			if (turnsWithoutCapture >= 50) {
+				finished = true;
+				Player plyrA = toMove.player;
+				for (int r = 0; r < 8; r++) {
+					for (int c = 0; c < 8; c++) {
+					    Checker piece = grid[r][c];
+					    if (piece != null && piece.player != plyrA) {
+					    	winner = plyrA.checkers.size() >= piece.player.checkers.size() ? plyrA : piece.player;
+					    	break;
+					    }
+					}
+				}
+			}
+		}
 		
 		// Find path
 		removeCheckers(toMove, from, to, lookAhead);

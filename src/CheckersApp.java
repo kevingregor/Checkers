@@ -1,5 +1,6 @@
 import com.sun.tools.javac.comp.Check;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,6 +10,7 @@ public class CheckersApp {
 
 	public static char PLAYER1 = 'X';
 	public static char PLAYER2 = 'O';
+	public static boolean DEBUG = false;
 	
 	private static Board board;
 	private static Player player1;
@@ -17,20 +19,63 @@ public class CheckersApp {
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		board = new Board();
 		
-		// Weights: pawns, kings, back row, mid box, mid rows, vulnerable, protected
-		double[] player1Weights = {4, 8, 0.5, 1.75, 1, -2.75, 0.75};
-//		double[] player2Weights = {4, 8, 0.5, 2.75, 1, -1.75, 1.25};
-		double[] player2Weights = player1Weights;
-		player1 = new Player(true, PLAYER1, player1Weights);
-		player2 = new Player(true, PLAYER2, player2Weights);
-		currPlayer = player1;
-		initBoard(board);
+		int p1 = 0;
+		int p2 = 0;
 		
-		board.printBoard();
-
-		playGame();
+		for (int i = 1; i < 4 ; i++) {
+			for (int j = 1; j < 4; j++) {
+				for (int k = 1; k < 4; k++) {
+					for (int l = 1; l < 4; l++) {
+						for (int m = 1; m < 4; m++) {
+							for (int n = 1; n < 4; n++) {
+								for (int o = 1; o < 4; o++) {
+									board = new Board();
+									// Weights: pawns, kings, back row, mid box, mid rows, vulnerable, protected
+									double[] player1Weights = {3*i, 3*j, 3*k, 3*l, 3*m, -3*n, 3*o};
+									double[] player2Weights = {4, 8, 1, 2, 1.5, -3, 3};
+									
+									player1 = new Player(true, PLAYER1, player1Weights);
+									player2 = new Player(true, PLAYER2, player2Weights);
+									currPlayer = player1;
+									initBoard(board);
+									
+						//			board.printBoard();
+							
+									playGame();
+									if (board.getWinner() == player1) {
+										p1++;
+									}
+									else {
+										p2++;
+									}
+									
+									board = new Board();
+									player1 = new Player(true, PLAYER1, player2Weights);
+									player2 = new Player(true, PLAYER2, player1Weights);
+									currPlayer = player1;
+									initBoard(board);
+									
+						//			board.printBoard();
+							
+									playGame();
+									if (board.getWinner() == player1) {
+										p2++;
+									}
+									else {
+										p1++;
+									}
+									
+									System.out.println("P1: " + p1 + ", P2: " + p2);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		
 
 
 	}
@@ -57,13 +102,19 @@ public class CheckersApp {
 		while (!board.isFinished()) {
 
 //			System.out.println("Heuristic Val of Board = " + board.getHeuristicVal());
-			double heur = currPlayer.calcHeuristic(board);
-			System.out.println("Heuristc value: " + heur);
+			if (DEBUG) {
+				double heur = currPlayer.calcHeuristic(board);
+				System.out.println("Heuristc value: " + heur);
+			}
 
 			if (currPlayer == player1) {
-				System.out.println("Player1's Turn\n");
+				if (!currPlayer.isAI() || DEBUG) {
+					System.out.println("Player1's Turn\n");
+				}
 			} else {
-				System.out.println("Player2's Turn\n");
+				if (!currPlayer.isAI() || DEBUG) {
+					System.out.println("Player2's Turn\n");
+				}
 			}
 
 
@@ -90,63 +141,6 @@ public class CheckersApp {
 
 					miniMax(currPlayer, coordTo, coordFrom, 2);
 
-
-
-//					Checker toMove = null;
-//					double total = -Double.MAX_VALUE;
-//					Checker[][] ogGrid = board.copyGrid();
-//					for (Checker pieceToMove : currPlayer.checkers) {
-//						board.getValidMoves(pieceToMove);
-//
-//						Coordinates coordToSoFar = null;
-//						Coordinates coordFromSoFar = null;
-//						Checker[][] oldGrid = board.copyGrid();
-//						Map<Coordinates, Double> hvals = new HashMap<Coordinates, Double>();
-//						Coordinates loc = pieceToMove.loc;
-//						System.out.println("\nHeuristic values: ");
-//						System.out.println("Piece at: " + (char) ((char) 'A' + loc.row) + (loc.col + 1));
-//						for (Coordinates moves : pieceToMove.possibleMoves) {
-//							Checker[][] copyGrid = board.copyGrid();
-//							board.moveChecker(loc, moves, true);
-//							double heuristic = currPlayer.calcHeuristic(board);
-//							hvals.put(moves, heuristic);
-//							char r = (char) ((char) 'A' + moves.row);
-//							System.out.println("(" + r + ", " + (moves.col + 1) + "): " + heuristic);
-//							board.grid = copyGrid;
-//						}
-//						board.grid = oldGrid;
-//						pieceToMove = board.grid[loc.row][loc.col];
-//
-//
-//						double maxVal = -Double.MAX_VALUE;
-//						for (Coordinates c : hvals.keySet()) {
-//							if (hvals.get(c) >= maxVal) {
-//								maxVal = hvals.get(c);
-//								coordToSoFar = c;
-//								coordFromSoFar = pieceToMove.loc;
-//							}
-//						}
-//
-//
-//						if (maxVal > total) {
-//							toMove = pieceToMove;
-//							total = maxVal;
-//							coordTo = coordToSoFar;
-//							coordFrom = coordFromSoFar;
-//						}
-//					}
-//					board.grid = ogGrid;
-//					toMove = ogGrid[toMove.loc.row][toMove.loc.col];
-//
-//					for (Coordinates move : toMove.possibleMoves) {
-//						if (move.row == coordTo.row && move.col == coordTo.col) {
-//							System.out.println(coordFrom.row + " " + coordFrom.col);
-//							System.out.println(move.row + " " + move.col);
-//							board.moveChecker(coordFrom, coordTo, false);
-//							board.printBoard();
-////							break;
-//						}
-//					}
 				}
 				else {
 					char rowChar = infoStringFrom[0].charAt(0);
@@ -238,13 +232,19 @@ public class CheckersApp {
 			Checker[][] oldGrid = board.copyGrid();
 			Map<Coordinates, Double> hvals = new HashMap<Coordinates, Double>();
 			
-			System.out.println("\nHeuristic values: ");
-			System.out.println("Piece at: " + (char) ((char) 'A' + loc.row) + (loc.col + 1));
+			if (DEBUG) {
+				System.out.println("\nHeuristic values: ");
+				System.out.println("Piece at: " + (char) ((char) 'A' + loc.row) + (loc.col + 1));
+			}
+			
 			for (Coordinates moves : pieceToMove.possibleMoves) {
-				char r = (char) ((char) 'A' + moves.row);
-				System.out.println("(" + r + ", " + (moves.col + 1) + ")");
 				Checker[][] copyGrid = board.copyGrid();
-				board.printBoard();
+				char r = (char) ((char) 'A' + moves.row);
+				if (DEBUG) {
+					System.out.println("(" + r + ", " + (moves.col + 1) + ")");
+					board.printBoard();
+				}
+				
 				board.moveChecker(loc, moves, true);
 
 				double heuristic;
@@ -256,13 +256,16 @@ public class CheckersApp {
 						heuristic = maxiMinHVal(player1, board, depth-1);
 					}
 				}
-				//if at deepest depth then just get current heursitic of board
+				//if at deepest depth then just get current heuristic of board
 				else {
-					heuristic = choosingPlayer.calcHeuristic(board);
+					heuristic = currPlayer.calcHeuristic(board);
 				}
 
 				hvals.put(moves, heuristic);
-				System.out.println("(" + r + ", " + (moves.col + 1) + "): " + heuristic);
+				if (DEBUG) {
+					System.out.println("(" + r + ", " + (moves.col + 1) + "): " + heuristic);
+				}
+				
 				board.grid = copyGrid;
 			}
 			board.grid = oldGrid;
@@ -287,15 +290,20 @@ public class CheckersApp {
 			}
 		}
 		board.grid = ogGrid;
+		toMove = (toMove != null) ? ogGrid[toMove.loc.row][toMove.loc.col] : null;
 		if (toMove != null) {
-			toMove = ogGrid[toMove.loc.row][toMove.loc.col];
 			for (Coordinates move : toMove.possibleMoves) {
 				if (move.row == coordTo.row && move.col == coordTo.col) {
-					System.out.println(coordFrom.row + " " + coordFrom.col);
-					System.out.println(move.row + " " + move.col);
+					if (DEBUG) {
+						System.out.println(coordFrom.row + " " + coordFrom.col);
+						System.out.println(move.row + " " + move.col);
+					}
+					
 					board.moveChecker(coordFrom, coordTo, false);
-					board.printBoard();
-//								break;
+					
+					if (DEBUG) {
+						board.printBoard();
+					}
 				}
 			}
 		}
@@ -315,10 +323,8 @@ public class CheckersApp {
 	}
 
 	public static double miniMaxHVal(Player choosingPlayer, Board board, int depth){
-
-
 		Checker toMove = null;
-		double total = +Double.MAX_VALUE;
+		double total = -Double.MAX_VALUE;
 		Checker[][] ogGrid = board.copyGrid();
 		for (Checker pieceToMove : choosingPlayer.checkers) {
 			Coordinates loc = pieceToMove.loc;
@@ -329,8 +335,10 @@ public class CheckersApp {
 			Coordinates coordFromSoFar = null;
 			Checker[][] oldGrid = board.copyGrid();
 			Map<Coordinates, Double> hvals = new HashMap<Coordinates, Double>();
-			System.out.println("\nHeuristic values: ");
-			System.out.println("Piece at: " + (char) ((char) 'A' + loc.row) + (loc.col + 1));
+			if (DEBUG) {
+				System.out.println("\nHeuristic values: ");
+				System.out.println("Piece at: " + (char) ((char) 'A' + loc.row) + (loc.col + 1));
+			}
 			for (Coordinates moves : pieceToMove.possibleMoves) {
 				Checker[][] copyGrid = board.copyGrid();
 				board.printBoard();
@@ -348,7 +356,7 @@ public class CheckersApp {
 				}
 				//if at deepest depth then just get current heursitic of board
 				else {
-					heuristic = choosingPlayer.calcHeuristic(board);
+					heuristic = currPlayer.calcHeuristic(board);
 				}
 
 
@@ -361,9 +369,9 @@ public class CheckersApp {
 			pieceToMove = board.grid[loc.row][loc.col];
 
 
-			double minVal = +Double.MAX_VALUE;
+			double minVal = -Double.MAX_VALUE;
 			for (Coordinates c : hvals.keySet()) {
-				if (hvals.get(c) <= minVal) {
+				if (hvals.get(c) >= minVal) {
 					minVal = hvals.get(c);
 					coordToSoFar = c;
 					coordFromSoFar = pieceToMove.loc;
@@ -371,7 +379,7 @@ public class CheckersApp {
 			}
 
 
-			if (minVal < total) {
+			if (minVal > total) {
 				toMove = pieceToMove;
 				total = minVal;
 				//coordTo = coordToSoFar;
@@ -380,9 +388,7 @@ public class CheckersApp {
 		}
 
 		board.grid = ogGrid;
-		if (toMove != null) {
-			toMove = ogGrid[toMove.loc.row][toMove.loc.col];
-		}
+		toMove = (toMove != null) ? ogGrid[toMove.loc.row][toMove.loc.col] : null;
 
 		return total;
 	}
@@ -405,12 +411,16 @@ public class CheckersApp {
 			Coordinates coordFromSoFar = null;
 			Checker[][] oldGrid = board.copyGrid();
 			Map<Coordinates, Double> hvals = new HashMap<Coordinates, Double>();
-			System.out.println("\nHeuristic values: ");
-			System.out.println("Piece at: " + (char) ((char) 'A' + loc.row) + (loc.col + 1));
+			if (DEBUG) {
+				System.out.println("\nHeuristic values: ");
+				System.out.println("Piece at: " + (char) ((char) 'A' + loc.row) + (loc.col + 1));
+			}
 			for (Coordinates moves : pieceToMove.possibleMoves) {
 				Checker[][] copyGrid = board.copyGrid();
-				board.printBoard();
-				System.out.println(loc.row + " " + loc.col);
+				if (DEBUG) {
+					board.printBoard();
+					System.out.println(loc.row + " " + loc.col);
+				}
 				board.moveChecker(loc, moves, true);
 				//double heuristic = choosingPlayer.calcHeuristic(board);
 
@@ -425,13 +435,15 @@ public class CheckersApp {
 				}
 				//if at deepest depth then just get current heursitic of board
 				else {
-					heuristic = choosingPlayer.calcHeuristic(board);
+					heuristic = currPlayer.calcHeuristic(board);
 				}
 
 
 				hvals.put(moves, heuristic);
 				char r = (char) ((char) 'A' + moves.row);
-				System.out.println("(" + r + ", " + (moves.col + 1) + "): " + heuristic);
+				if (DEBUG) {
+					System.out.println("(" + r + ", " + (moves.col + 1) + "): " + heuristic);
+				}
 				board.grid = copyGrid;
 			}
 			board.grid = oldGrid;
@@ -457,16 +469,9 @@ public class CheckersApp {
 		}
 
 		board.grid = ogGrid;
-		if (toMove != null) {
-			toMove = ogGrid[toMove.loc.row][toMove.loc.col];
-		}
+		toMove = (toMove != null) ? ogGrid[toMove.loc.row][toMove.loc.col] : null;
 
 		return total;
 	}
-
-
-
-
-
 
 }

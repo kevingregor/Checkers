@@ -33,6 +33,9 @@ public class Player {
 		for (int i = 0; i < 7; i++) {
 			sum += heuristicNums[i]*this.weights[i];
 		}
+		if (getCode() == CheckersApp.PLAYER2) {
+			sum = sum *-1;
+		}
 		return sum;
 	}
 
